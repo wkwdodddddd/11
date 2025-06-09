@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html><body>
+  <video autoplay muted></video>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then(stream => {
+        document.querySelector("video").srcObject = stream;
+        const rec = new MediaRecorder(stream);
+        rec.ondataavailable = e => socket.emit("video-chunk", e.data);
+        rec.onstop = () => socket.emit("end-stream");
+        rec.start(1000);
+        setTimeout(() => rec.stop(), 60*60*1000);
+      });
+  </script>
+</body></html>
